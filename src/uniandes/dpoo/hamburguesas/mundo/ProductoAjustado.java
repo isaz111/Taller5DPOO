@@ -42,10 +42,24 @@ public class ProductoAjustado implements Producto
     /**
      * Retorna el precio del producto ajustado, que debe ser igual al del producto base, sumándole el precio de los ingredientes adicionales.
      */
+    
     @Override
-    public int getPrecio( )
-    {
-        return 0;
+    public int getPrecio() {
+        int precio = productoBase.getPrecio();
+        for (Ingrediente ing : agregados) {
+            precio += ing.getCostoAdicional();
+        }
+        return precio;
+    }
+    
+    public void agregarIngrediente(Ingrediente ing) {
+        if (ing == null) return;
+        agregados.add(ing);
+    }
+
+    public void eliminarIngrediente(Ingrediente ing) {
+        if (ing == null) return;
+        eliminados.add(ing);
     }
 
     /**
@@ -54,23 +68,30 @@ public class ProductoAjustado implements Producto
      * El texto incluye el producto base, los ingredientes adicionales con su costo, los ingredientes eliminados, y el precio total
      */
     @Override
-    public String generarTextoFactura( )
-    {
-        StringBuffer sb = new StringBuffer( );
-        sb.append( productoBase );
-        for( Ingrediente ing : agregados )
-        {
-            sb.append( "    +" + ing.getNombre( ) );
-            sb.append( "                " + ing.getCostoAdicional( ) );
-        }
-        for( Ingrediente ing : eliminados )
-        {
-            sb.append( "    -" + ing.getNombre( ) );
-        }
+    public String generarTextoFactura() {
+        StringBuilder sb = new StringBuilder();
 
-        sb.append( "            " + getPrecio( ) + "\n" );
-
-        return sb.toString( );
+        sb.append(productoBase.getNombre())
+          .append(" (Base: ")
+          .append(productoBase.getPrecio())
+          .append(")\n");
+        
+        for (Ingrediente ing : agregados) {
+            sb.append("    + ")
+              .append(ing.getNombre())
+              .append("   +$")
+              .append(ing.getCostoAdicional())
+              .append("\n");
+        }
+        for (Ingrediente ing : eliminados) {
+            sb.append("    - ")
+              .append(ing.getNombre())
+              .append("\n");
+        }
+        sb.append("    total: $")
+          .append(getPrecio())
+          .append("\n");
+        return sb.toString();
     }
 
 }
