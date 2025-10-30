@@ -96,15 +96,26 @@ public class Restaurante
      * @throws NoHayPedidoEnCursoException Lanza esta excepción si no hay un pedido en curso
      * @throws FileNotFoundException Lanza esta excepción si hay problemas guardando el archivo
      */
-    public void cerrarYGuardarPedido( ) throws NoHayPedidoEnCursoException, IOException
-    {
-        if( pedidoEnCurso == null )
-            throw new NoHayPedidoEnCursoException( );
+    public void cerrarYGuardarPedido() throws NoHayPedidoEnCursoException, IOException {
+        if (pedidoEnCurso == null)
+            throw new NoHayPedidoEnCursoException();
+        
+        File carpeta = new File(CARPETA_FACTURAS);
+        if (!carpeta.exists() && !carpeta.mkdirs()) {
+            throw new IOException("No se pudo crear la carpeta de facturas: " + CARPETA_FACTURAS);
+        }
 
-        String nombreArchivo = PREFIJO_FACTURAS + pedidoEnCurso.getIdPedido( ) + ".txt";
-        pedidoEnCurso.guardarFactura( new File( CARPETA_FACTURAS + nombreArchivo ) );
+        String nombreArchivo = PREFIJO_FACTURAS + pedidoEnCurso.getIdPedido() + ".txt";
+
+        Pedido cerrado = pedidoEnCurso;
+
+        pedidoEnCurso.guardarFactura(new File(carpeta, nombreArchivo));
+
+        pedidos.add(cerrado);
+
         pedidoEnCurso = null;
     }
+
 
     /**
      * Retorna el pedido actual en curso. Si no hay un pedido en curso, retorna null.
@@ -165,12 +176,19 @@ public class Restaurante
      * @throws IOException
      * @throws NumberFormatException
      */
-    public void cargarInformacionRestaurante( File archivoIngredientes, File archivoMenu, File archivoCombos ) throws HamburguesaException, NumberFormatException, IOException
+    public void cargarInformacionRestaurante(
+            File archivoIngredientes, File archivoMenu, File archivoCombos)
+            throws HamburguesaException, NumberFormatException, IOException
     {
-        cargarIngredientes( archivoIngredientes );
-        cargarMenu( archivoMenu );
-        cargarCombos( archivoCombos );
+        ingredientes.clear();
+        menuBase.clear();
+        menuCombos.clear();
+
+        cargarIngredientes(archivoIngredientes);
+        cargarMenu(archivoMenu);
+        cargarCombos(archivoCombos);
     }
+
 
     private void cargarIngredientes( File archivoIngredientes ) throws IngredienteRepetidoException, IOException
     {
